@@ -11,5 +11,5 @@ public class Visit
     public required string Prescription { get; set; }
 
     public int PatientId { get; set; }
-    public required Patient Patient { get; set; }
+    public Patient? Patient { get; set; }
 }

@@ -3,18 +3,118 @@
         xmlns:vm="using:LibreMed.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="650"
         x:Class="LibreMed.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="LibreMed">
 
     <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Grid RowDefinitions="Auto,*" ColumnDefinitions="320,*" Margin="12" RowSpacing="12" ColumnSpacing="12">
+        <!-- Header -->
+        <TextBlock Grid.ColumnSpan="2"
+                   Text="Patients"
+                   FontSize="20"
+                   FontWeight="SemiBold"/>
 
+        <!-- Left: Patient list + Create patient -->
+        <Grid Grid.Row="1" Grid.Column="0" RowDefinitions="*,Auto" RowSpacing="12">
+
+            <Border Padding="10" CornerRadius="8" BorderThickness="1">
+                <Grid RowDefinitions="Auto,*" RowSpacing="8">
+                    <DockPanel>
+                        <TextBlock Text="All patients" FontWeight="SemiBold" DockPanel.Dock="Left"/>
+                        <Button Content="Refresh" Command="{Binding RefreshCommand}" DockPanel.Dock="Right"/>
+                    </DockPanel>
+
+                    <ListBox Grid.Row="1"
+                             ItemsSource="{Binding Patients}"
+                             SelectedItem="{Binding SelectedPatient}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="4">
+                                    <TextBlock Text="{Binding FullName}" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding BirthDateText}" Opacity="0.7" FontSize="12"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1" Padding="10" CornerRadius="8" BorderThickness="1">
+                <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,*" RowSpacing="8" ColumnSpacing="8">
+                    <TextBlock Grid.ColumnSpan="2" Text="Create new patient" FontWeight="SemiBold"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Name" VerticalAlignment="Center"/>
+                    <TextBox   Grid.Row="1" Grid.Column="1" Text="{Binding NewPatientName}"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Surname" VerticalAlignment="Center"/>
+                    <TextBox   Grid.Row="2" Grid.Column="1" Text="{Binding NewPatientSurname}"/>
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Birth date" VerticalAlignment="Center"/>
+                    <DatePicker Grid.Row="3" Grid.Column="1" SelectedDate="{Binding NewPatientBirthDate}"/>
+
+                    <Button Grid.Row="4" Grid.ColumnSpan="2"
+                            Content="Create patient"
+                            Command="{Binding CreatePatientCommand}"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Right: Patient details + upcoming visits + create visit -->
+        <Grid Grid.Row="1" Grid.Column="1" RowDefinitions="Auto,*,Auto" RowSpacing="12">
+
+            <Border Padding="10" CornerRadius="8" BorderThickness="1">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="{Binding SelectedPatientHeader}" FontSize="16" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding SelectedPatientSubheader}" Opacity="0.7"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="1" Padding="10" CornerRadius="8" BorderThickness="1">
+                <Grid RowDefinitions="Auto,*" RowSpacing="8">
+                    <TextBlock Text="Upcoming visits" FontWeight="SemiBold"/>
+
+                    <ItemsControl Grid.Row="1" ItemsSource="{Binding UpcomingVisits}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderThickness="1" CornerRadius="6" Padding="8" Margin="0,0,0,8">
+                                    <StackPanel Spacing="2">
+                                        <TextBlock Text="{Binding WhenText}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding Reason}" Opacity="0.85"/>
+                                        <TextBlock Text="{Binding Notes}" Opacity="0.7" FontSize="12" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="2" Padding="10" CornerRadius="8" BorderThickness="1">
+                <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,*" RowSpacing="8" ColumnSpacing="8">
+                    <TextBlock Grid.ColumnSpan="2" Text="Create visit" FontWeight="SemiBold"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Date" VerticalAlignment="Center"/>
+                    <DatePicker Grid.Row="1" Grid.Column="1" SelectedDate="{Binding NewVisitDate}"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Reason" VerticalAlignment="Center"/>
+                    <TextBox   Grid.Row="2" Grid.Column="1" Text="{Binding NewVisitReason}"/>
+
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Notes" VerticalAlignment="Center"/>
+                    <TextBox   Grid.Row="3" Grid.Column="1" Text="{Binding NewVisitNotes}" AcceptsReturn="True" Height="70"/>
+
+                    <Button Grid.Row="4" Grid.ColumnSpan="2"
+                            Content="Add visit"
+                            Command="{Binding CreateVisitCommand}"
+                            IsEnabled="{Binding CanCreateVisit}"/>
+                </Grid>
+            </Border>
+
+        </Grid>
+    </Grid>
 </Window>
