@@ -8,7 +8,6 @@ The open-source program for managing medical patients.
 
 ### From source
 
-Clone the repository
 ```
-git clone github.com/lmihailovic/LibreMed && cd LibreMed && dotnet run
+git clone https://github.com/lmihailovic/LibreMed && cd LibreMed && dotnet run
 ```
