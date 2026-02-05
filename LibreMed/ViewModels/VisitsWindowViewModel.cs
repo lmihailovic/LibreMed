@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LibreMed.Data;
 using LibreMed.Models;
+using LibreMed.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibreMed.ViewModels;
@@ -14,8 +15,9 @@ namespace LibreMed.ViewModels;
 public partial class VisitsWindowViewModel : ViewModelBase
 {
     private readonly int _patientId;
+    private readonly IWindowService _windowService;
 
-    public ObservableCollection<VisitVm> Visits { get; } = new();
+    public ObservableCollection<VisitRowVm> Visits { get; } = new();
 
     [ObservableProperty] private string windowTitle = "Visits";
     [ObservableProperty] private string header = "Visits";
@@ -25,10 +27,17 @@ public partial class VisitsWindowViewModel : ViewModelBase
     [ObservableProperty] private string newVisitReason = string.Empty;
     [ObservableProperty] private string newVisitNotes = string.Empty;
 
-    public VisitsWindowViewModel(int patientId)
+    public VisitsWindowViewModel(int patientId, IWindowService windowService)
     {
         _patientId = patientId;
+        _windowService = windowService;
         _ = RefreshAsync();
+    }
+
+    [RelayCommand]
+    private void OpenDiagnosis(int visitId)
+    {
+        _windowService.ShowDiagnosisWindow(visitId);
     }
 
     [RelayCommand]
@@ -50,7 +59,16 @@ public partial class VisitsWindowViewModel : ViewModelBase
 
         Visits.Clear();
         foreach (var v in visits)
-            Visits.Add(VisitVm.FromModel(v));
+        {
+            Visits.Add(new VisitRowVm
+            {
+                Id = v.Id,
+                Date = v.Date,
+                Reason = v.Reason,
+                Notes = v.Notes,
+                OpenDiagnosisCommand = OpenDiagnosisCommand
+            });
+        }
     }
 
     [RelayCommand]
@@ -71,7 +89,6 @@ public partial class VisitsWindowViewModel : ViewModelBase
             Date = date,
             Reason = reason,
             Notes = notes,
-            Prescription = string.Empty
         });
 
         await db.SaveChangesAsync();
@@ -92,4 +109,16 @@ public partial class VisitsWindowViewModel : ViewModelBase
 
         return new AppDbContext(options);
     }
+}
+
+public sealed class VisitRowVm
+{
+    public required int Id { get; init; }
+    public required DateTime Date { get; init; }
+    public required string Reason { get; init; }
+    public required string Notes { get; init; }
+
+    public required IRelayCommand<int> OpenDiagnosisCommand { get; init; }
+
+    public string WhenText => Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 }

@@ -8,8 +8,9 @@ public class Visit
     public DateTime Date { get; set; }
     public required string Notes { get; set; }
     public required string Reason { get; set; }
-    public required string Prescription { get; set; }
 
     public int PatientId { get; set; }
     public Patient? Patient { get; set; }
+
+    public Diagnosis? Diagnosis { get; set; }
 }

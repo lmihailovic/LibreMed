@@ -46,7 +46,6 @@ public static class DbSeeder
             Date = DateTime.Today,
             Reason = "Routine check",
             Notes = "All vitals normal.",
-            Prescription = "None",
             Patient = p1
         });
 

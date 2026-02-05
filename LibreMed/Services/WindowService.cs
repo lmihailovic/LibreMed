@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using LibreMed.ViewModels;
 using LibreMed.Views;
@@ -11,10 +12,24 @@ public sealed class WindowService : IWindowService
     {
         var win = new VisitsWindow
         {
-            DataContext = new VisitsWindowViewModel(patientId)
+            DataContext = new VisitsWindowViewModel(patientId, this)
         };
 
-        // Optional: set owner if we can (nice for window stacking/focus)
+        ShowOwnedOrStandalone(win);
+    }
+
+    public void ShowDiagnosisWindow(int visitId)
+    {
+        var win = new DiagnosisWindow
+        {
+            DataContext = new DiagnosisWindowViewModel(visitId)
+        };
+
+        ShowOwnedOrStandalone(win);
+    }
+
+    private static void ShowOwnedOrStandalone(Window win)
+    {
         if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop &&
             desktop.MainWindow is not null)
         {

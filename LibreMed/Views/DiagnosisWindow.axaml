@@ -1,0 +1,42 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:LibreMed.ViewModels"
+        x:Class="LibreMed.Views.DiagnosisWindow"
+        x:DataType="vm:DiagnosisWindowViewModel"
+        Width="720" Height="520"
+        Title="{Binding WindowTitle}">
+
+    <Grid RowDefinitions="Auto,*,Auto" Margin="12" RowSpacing="12">
+        <Border Padding="10" CornerRadius="8" BorderThickness="1">
+            <StackPanel Spacing="4">
+                <TextBlock Text="{Binding Header}" FontSize="18" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding Subheader}" Opacity="0.7"/>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="1" Padding="10" CornerRadius="8" BorderThickness="1">
+            <Grid RowDefinitions="Auto,Auto,Auto,*"
+                  ColumnDefinitions="Auto,*"
+                  RowSpacing="8" ColumnSpacing="8">
+                <TextBlock Grid.ColumnSpan="2" Text="Diagnosis" FontWeight="SemiBold"/>
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Title" VerticalAlignment="Center"/>
+                <TextBox   Grid.Row="1" Grid.Column="1" Text="{Binding TitleText}"/>
+
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Prescription" VerticalAlignment="Center"/>
+                <TextBox   Grid.Row="2" Grid.Column="1" Text="{Binding PrescriptionText}"/>
+
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="Details" VerticalAlignment="Top"/>
+                <TextBox   Grid.Row="3" Grid.Column="1"
+                           Text="{Binding DetailsText}"
+                           AcceptsReturn="True"
+                           Height="280"/>
+            </Grid>
+        </Border>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+            <Button Content="Refresh" Command="{Binding RefreshCommand}"/>
+            <Button Content="Save" Command="{Binding SaveCommand}"/>
+        </StackPanel>
+    </Grid>
+</Window>

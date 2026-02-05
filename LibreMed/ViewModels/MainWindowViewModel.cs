@@ -214,6 +214,7 @@ public sealed class PatientListItemVm
 
 public sealed class VisitVm
 {
+    public required int Id { get; init; }
     public required DateTime Date { get; init; }
     public required string Reason { get; init; }
     public required string Notes { get; init; }
@@ -222,6 +223,7 @@ public sealed class VisitVm
 
     public static VisitVm FromModel(Visit v) => new()
     {
+        Id = v.Id,
         Date = v.Date,
         Reason = v.Reason,
         Notes = v.Notes

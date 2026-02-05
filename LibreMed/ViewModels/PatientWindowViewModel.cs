@@ -118,7 +118,7 @@ public partial class PatientWindowViewModel : ViewModelBase
 
         await RefreshAsync();
     }
-
+    
     [RelayCommand]
     private async Task AddVisitAsync()
     {
@@ -136,8 +136,7 @@ public partial class PatientWindowViewModel : ViewModelBase
             PatientId = _patientId,
             Date = date,
             Reason = reason,
-            Notes = notes,
-            Prescription = string.Empty
+            Notes = notes
         });
 
         await db.SaveChangesAsync();
