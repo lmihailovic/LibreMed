@@ -34,9 +34,11 @@ public partial class App : Application
         {
             DisableAvaloniaDataAnnotationValidation();
 
+            var fileDialogs = (IFileSaveDialogService)Services.GetService(typeof(IFileSaveDialogService))!;
+
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainWindowViewModel(),
+                DataContext = new MainWindowViewModel(fileDialogs),
             };
         }
 

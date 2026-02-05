@@ -10,6 +10,7 @@ public sealed class AppDbContext : DbContext
 {
     public DbSet<Patient> Patients => Set<Patient>();
     public DbSet<Visit> Visits => Set<Visit>();
+    public DbSet<Diagnosis> Diagnosis => Set<Diagnosis>();
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
