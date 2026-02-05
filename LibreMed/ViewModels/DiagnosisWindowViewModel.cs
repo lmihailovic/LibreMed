@@ -36,7 +36,17 @@ public partial class DiagnosisWindowViewModel : ViewModelBase
     [RelayCommand]
     private async Task ExportPdfAsync()
     {
-        var path = await _fileSaveDialog.PickPdfSavePathAsync($"diagnosis-visit-{_visitId}.pdf");
+        using var db = CreateDbContext();
+        var visit = await db.Visits
+            .AsNoTracking()
+            .Include(v => v.Patient)
+            .Include(v => v.Diagnosis)
+            .FirstAsync(v => v.Id == _visitId);
+        
+        var shortDate = visit.Diagnosis.CreatedAt.ToString("yyyy.MM.dd", CultureInfo.InvariantCulture);
+        
+        
+        var path = await _fileSaveDialog.PickPdfSavePathAsync($"diagnosis-{visit.Patient.Name}-{visit.Patient.Surname}-{visit.Diagnosis.Title}-{shortDate}.pdf");
         if (string.IsNullOrWhiteSpace(path))
             return;
 
