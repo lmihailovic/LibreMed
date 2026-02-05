@@ -1,4 +1,6 @@
+using Avalonia;
 using Avalonia.Controls;
+using LibreMed.Services;
 using LibreMed.ViewModels;
 
 namespace LibreMed.Views;
@@ -23,9 +25,12 @@ public partial class MainWindow : Window
 
     private void OpenPatientProfileWindow(int patientId)
     {
+        var app = (App)Application.Current!;
+        var windowService = (IWindowService)app.Services.GetService(typeof(IWindowService))!;
+
         var win = new PatientWindow
         {
-            DataContext = new PatientWindowViewModel(patientId)
+            DataContext = new PatientWindowViewModel(patientId, windowService)
         };
 
         win.Show();

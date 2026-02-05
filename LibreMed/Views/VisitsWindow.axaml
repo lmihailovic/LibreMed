@@ -1,0 +1,64 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:LibreMed.ViewModels"
+        x:Class="LibreMed.Views.VisitsWindow"
+        x:DataType="vm:VisitsWindowViewModel"
+        Width="450" Height="650"
+        Title="{Binding WindowTitle}">
+
+    <Grid RowDefinitions="Auto,*,Auto" Margin="12" RowSpacing="12">
+        <Border Padding="10" CornerRadius="8" BorderThickness="1">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Left" Spacing="4">
+                    <TextBlock Text="{Binding Header}" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding Subheader}" Opacity="0.7"/>
+                </StackPanel>
+
+                <Button DockPanel.Dock="Right"
+                        Content="Refresh"
+                        Command="{Binding RefreshCommand}"/>
+            </DockPanel>
+        </Border>
+
+        <Border Grid.Row="1" Padding="10" CornerRadius="8" BorderThickness="1">
+            <Grid RowDefinitions="Auto,*" RowSpacing="8">
+                <TextBlock Text="All visits" FontWeight="SemiBold"/>
+
+                <ScrollViewer Grid.Row="1">
+                    <ItemsControl ItemsSource="{Binding Visits}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderThickness="1" CornerRadius="6" Padding="8" Margin="0,0,0,8">
+                                    <StackPanel Spacing="2">
+                                        <TextBlock Text="{Binding WhenText}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding Reason}" Opacity="0.85"/>
+                                        <TextBlock Text="{Binding Notes}" Opacity="0.7" FontSize="12" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="2" Padding="10" CornerRadius="8" BorderThickness="1">
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,*" RowSpacing="8" ColumnSpacing="8">
+                <TextBlock Grid.ColumnSpan="2" Text="Add visit" FontWeight="SemiBold"/>
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Date" VerticalAlignment="Center"/>
+                <DatePicker Grid.Row="1" Grid.Column="1" SelectedDate="{Binding NewVisitDate}"/>
+
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Reason" VerticalAlignment="Center"/>
+                <TextBox   Grid.Row="2" Grid.Column="1" Text="{Binding NewVisitReason}"/>
+
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="Notes" VerticalAlignment="Center"/>
+                <TextBox   Grid.Row="3" Grid.Column="1" Text="{Binding NewVisitNotes}" AcceptsReturn="True" Height="70"/>
+
+                <Button Grid.Row="4" Grid.ColumnSpan="2"
+                        Content="Add"
+                        Command="{Binding AddVisitCommand}"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
