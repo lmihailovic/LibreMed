@@ -1,0 +1,29 @@
+using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Platform.Storage;
+
+namespace LibreMed.Services;
+
+public sealed class AvaloniaFileSaveDialogService : IFileSaveDialogService
+{
+    public async Task<string?> PickPdfSavePathAsync(string suggestedFileName)
+    {
+        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop ||
+            desktop.MainWindow is null)
+            return null;
+
+        var file = await desktop.MainWindow.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Save diagnosis report as PDF",
+            SuggestedFileName = suggestedFileName,
+            DefaultExtension = "pdf",
+            FileTypeChoices =
+            [
+                new FilePickerFileType("PDF document") { Patterns = ["*.pdf"] }
+            ]
+        });
+
+        return file?.TryGetLocalPath();
+    }
+}

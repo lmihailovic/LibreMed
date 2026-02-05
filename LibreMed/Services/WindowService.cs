@@ -20,9 +20,12 @@ public sealed class WindowService : IWindowService
 
     public void ShowDiagnosisWindow(int visitId)
     {
+        var app = (App)Application.Current!;
+        var fileSave = (IFileSaveDialogService)app.Services.GetService(typeof(IFileSaveDialogService))!;
+
         var win = new DiagnosisWindow
         {
-            DataContext = new DiagnosisWindowViewModel(visitId)
+            DataContext = new DiagnosisWindowViewModel(visitId, fileSave)
         };
 
         ShowOwnedOrStandalone(win);

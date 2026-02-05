@@ -23,6 +23,7 @@ public partial class App : Application
         var serviceCollection = new ServiceCollection();
 
         serviceCollection.AddSingleton<IWindowService, WindowService>();
+        serviceCollection.AddSingleton<IFileSaveDialogService, AvaloniaFileSaveDialogService>();
 
         Services = serviceCollection.BuildServiceProvider();
     }
