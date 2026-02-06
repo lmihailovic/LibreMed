@@ -1,3 +1,4 @@
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -29,6 +30,15 @@ public sealed class WindowService : IWindowService
         };
 
         ShowOwnedOrStandalone(win);
+    }
+
+    public void CloseActiveWindow()
+    {
+        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop)
+            return;
+
+        var win = desktop.Windows.FirstOrDefault(w => w.IsActive) ?? desktop.Windows.LastOrDefault();
+        win?.Close();
     }
 
     private static void ShowOwnedOrStandalone(Window win)

@@ -118,7 +118,7 @@ public partial class PatientWindowViewModel : ViewModelBase
 
         await RefreshAsync();
     }
-    
+
     [RelayCommand]
     private async Task AddVisitAsync()
     {
@@ -145,6 +145,24 @@ public partial class PatientWindowViewModel : ViewModelBase
         NewVisitNotes = string.Empty;
 
         await RefreshAsync();
+    }
+
+    [RelayCommand]
+    private async Task DeletePatientAsync()
+    {
+        using var db = CreateDbContext();
+
+        var p = await db.Patients.FirstOrDefaultAsync(x => x.Id == _patientId);
+        if (p is null)
+        {
+            _windowService.CloseActiveWindow();
+            return;
+        }
+
+        db.Patients.Remove(p);
+        await db.SaveChangesAsync();
+
+        _windowService.CloseActiveWindow();
     }
 
     private static string? NormalizeOptional(string? value)
