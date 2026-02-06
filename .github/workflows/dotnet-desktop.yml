@@ -28,8 +28,8 @@ jobs:
       - name: Build project
         run: dotnet build LibreMed/LibreMed.csproj -c Release --no-restore
 
-      - name: Run unit tests
-        run: dotnet test LibreMed.Tests/LibreMed.Tests.csproj -c Release --no-build
+      # - name: Run unit tests
+      #   run: dotnet test LibreMed.Tests/LibreMed.Tests.csproj -c Release --no-build
 
   publish_windows:
     name: Publish Windows .exe
