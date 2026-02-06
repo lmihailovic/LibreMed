@@ -47,6 +47,37 @@
             </Grid>
         </Border>
 
-        <!-- ... existing code (Add visit form) ... -->
+        <Border Grid.Row="2" Padding="10" CornerRadius="8" BorderThickness="1">
+            <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,*" RowSpacing="8" ColumnSpacing="10">
+                <TextBlock Grid.Row="0" Grid.ColumnSpan="2"
+                           Text="New visit"
+                           FontWeight="SemiBold"/>
+
+                <TextBlock Grid.Row="1" Grid.Column="0"
+                           VerticalAlignment="Center"
+                           Text="Date"/>
+                <DatePicker Grid.Row="1" Grid.Column="1"
+                            SelectedDate="{Binding NewVisitDate}"/>
+
+                <TextBlock Grid.Row="2" Grid.Column="0"
+                           VerticalAlignment="Top"
+                           Text="Reason / notes"/>
+                <StackPanel Grid.Row="2" Grid.Column="1" Spacing="8">
+                    <TextBox Watermark="Reason (required)"
+                             Text="{Binding NewVisitReason}"/>
+
+                    <TextBox Watermark="Notes (optional)"
+                             Text="{Binding NewVisitNotes}"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             MinHeight="70"/>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                        <Button Content="Add visit"
+                                Command="{Binding AddVisitCommand}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </Window>
