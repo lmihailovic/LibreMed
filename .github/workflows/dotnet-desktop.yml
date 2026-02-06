@@ -6,6 +6,7 @@ on:
     tags: [ "v*" ]       # only build exe for version tags
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build_and_test:
