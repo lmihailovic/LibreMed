@@ -2,10 +2,10 @@ name: Build & Publish Avalonia Windows .exe
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
     tags: [ "v*" ]       # only build exe for version tags
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
   workflow_dispatch:
 
 jobs:
