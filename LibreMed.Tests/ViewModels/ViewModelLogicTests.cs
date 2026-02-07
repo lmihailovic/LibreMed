@@ -16,21 +16,17 @@ public sealed class ViewModelLogicTests
     [Fact]
     public void PatientWindow_OpenVisitsCommand_CallsWindowServiceWithPatientId()
     {
-        // Arrange
-        using var _ = TestDbScope.CreateAndSeed();
-
-        var patientId = TestDbScope.GetAnyPatientId();
+        using var scope = TestDbScope.CreateAndSeed();
+        var patientId = scope.GetAnyPatientId();
 
         var windows = new Mock<IWindowService>(MockBehavior.Strict);
         windows.Setup(x => x.ShowVisitsWindow(patientId));
 
-        // Constructor triggers RefreshAsync() (DB), which is why we seed above.
+        // VM koristi DbBootstrapper koji sada pokazuje na privremenu test bazu
         var vm = new PatientWindowViewModel(patientId, windows.Object);
 
-        // Act
         vm.OpenVisitsCommand.Execute(null);
 
-        // Assert
         windows.Verify(x => x.ShowVisitsWindow(patientId), Times.Once);
         windows.VerifyNoOtherCalls();
     }
@@ -38,22 +34,17 @@ public sealed class ViewModelLogicTests
     [Fact]
     public void VisitsWindow_OpenDiagnosisCommand_CallsWindowServiceWithVisitId()
     {
-        // Arrange
-        using var _ = TestDbScope.CreateAndSeed();
-
-        var patientId = TestDbScope.GetAnyPatientId();
-        var visitId = TestDbScope.GetAnyVisitIdForPatient(patientId);
+        using var scope = TestDbScope.CreateAndSeed();
+        var patientId = scope.GetAnyPatientId();
+        var visitId = scope.GetAnyVisitIdForPatient(patientId);
 
         var windows = new Mock<IWindowService>(MockBehavior.Strict);
         windows.Setup(x => x.ShowDiagnosisWindow(visitId));
 
-        // Constructor triggers RefreshAsync() (DB).
         var vm = new VisitsWindowViewModel(patientId, windows.Object);
 
-        // Act
         vm.OpenDiagnosisCommand.Execute(visitId);
 
-        // Assert
         windows.Verify(x => x.ShowDiagnosisWindow(visitId), Times.Once);
         windows.VerifyNoOtherCalls();
     }
@@ -61,91 +52,97 @@ public sealed class ViewModelLogicTests
     [Fact]
     public async Task PatientWindow_DeletePatientAsync_WhenPatientMissing_ClosesActiveWindow()
     {
-        // Arrange
-        using var _ = TestDbScope.CreateAndSeed();
-
-        var nonExistentPatientId = int.MaxValue;
+        using var scope = TestDbScope.CreateAndSeed();
+        var patientId = scope.GetAnyPatientId();
 
         var windows = new Mock<IWindowService>(MockBehavior.Strict);
         windows.Setup(x => x.CloseActiveWindow());
 
-        var vm = new PatientWindowViewModel(nonExistentPatientId, windows.Object);
+        var vm = new PatientWindowViewModel(patientId, windows.Object);
 
-        // Act
+        // delete patient directly to simulate "already deleted elsewhere"
+        using (var db = scope.CreateDbContextForTests())
+        {
+            var p = await db.Patients.FirstAsync(x => x.Id == patientId);
+            db.Patients.Remove(p);
+            await db.SaveChangesAsync();
+        }
+
         await vm.DeletePatientCommand.ExecuteAsync(null);
 
-        // Assert
         windows.Verify(x => x.CloseActiveWindow(), Times.Once);
         windows.VerifyNoOtherCalls();
     }
 
     private sealed class TestDbScope : IDisposable
     {
-        private readonly string _tempHome;
-        private readonly string? _oldHome;
+        private readonly string _tempFolder;
+        private readonly string? _oldXdgDataHome;
 
-        private TestDbScope(string tempHome, string? oldHome)
+        private TestDbScope(string tempFolder, string? oldXdgDataHome)
         {
-            _tempHome = tempHome;
-            _oldHome = oldHome;
+            _tempFolder = tempFolder;
+            _oldXdgDataHome = oldXdgDataHome;
         }
 
         public static TestDbScope CreateAndSeed()
         {
-            var oldHome = Environment.GetEnvironmentVariable("HOME");
-            var tempHome = Path.Combine(Path.GetTempPath(), "LibreMed.Tests", Guid.NewGuid().ToString("N"));
-            Directory.CreateDirectory(tempHome);
+            var home = Environment.GetEnvironmentVariable("HOME");
+            if (string.IsNullOrWhiteSpace(home))
+                throw new InvalidOperationException("HOME is not set; cannot place test DB under $HOME/.tmp/test/");
 
-            // DbBootstrapper.GetDatabasePath() uses LocalApplicationData, which on Linux derives from HOME.
-            Environment.SetEnvironmentVariable("HOME", tempHome);
+            var oldXdgDataHome = Environment.GetEnvironmentVariable("XDG_DATA_HOME");
+
+            var tempBaseDir = Path.Combine(home, ".tmp", "test", Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(tempBaseDir);
+
+            var xdgDataHome = Path.Combine(tempBaseDir, "xdg-data-home");
+            Directory.CreateDirectory(xdgDataHome);
+
+            Environment.SetEnvironmentVariable("XDG_DATA_HOME", xdgDataHome);
+
+            // Make absolutely sure the DB directory exists before SQLite tries to open the file
+            var dbPath = DbBootstrapper.GetDatabasePath();
+            var dbDir = Path.GetDirectoryName(dbPath);
+            if (string.IsNullOrWhiteSpace(dbDir))
+                throw new InvalidOperationException($"Could not determine DB directory from path '{dbPath}'");
+
+            Directory.CreateDirectory(dbDir);
+
+            Console.WriteLine($"DB path: {dbPath}");
+            Console.WriteLine($"DB dir : {dbDir}");
 
             DbBootstrapper.EnsureCreated();
 
-            return new TestDbScope(tempHome, oldHome);
+            return new TestDbScope(tempBaseDir, oldXdgDataHome);
         }
 
-        public static int GetAnyPatientId()
+        public AppDbContext CreateDbContextForTests()
         {
-            using var db = CreateDbContext();
-            return db.Patients.AsNoTracking().Select(p => p.Id).First();
-        }
-
-        public static int GetAnyVisitIdForPatient(int patientId)
-        {
-            using var db = CreateDbContext();
-
-            // If seed data doesn't include a visit for the chosen patient, pick any visit.
-            var forPatient = db.Visits.AsNoTracking().Where(v => v.PatientId == patientId).Select(v => v.Id).FirstOrDefault();
-            if (forPatient != 0)
-                return forPatient;
-
-            return db.Visits.AsNoTracking().Select(v => v.Id).First();
-        }
-
-        private static AppDbContext CreateDbContext()
-        {
-            var dbPath = DbBootstrapper.GetDatabasePath();
-
+            var dbPath = Path.Combine(_tempFolder, "LibreMed", "libremed.db");
             var options = new DbContextOptionsBuilder<AppDbContext>()
                 .UseSqlite($"Data Source={dbPath}")
                 .Options;
-
             return new AppDbContext(options);
+        }
+
+        public int GetAnyPatientId()
+        {
+            using var db = CreateDbContextForTests();
+            return db.Patients.AsNoTracking().Select(p => p.Id).First();
+        }
+
+        public int GetAnyVisitIdForPatient(int patientId)
+        {
+            using var db = CreateDbContextForTests();
+            var visitId = db.Visits.AsNoTracking().Where(v => v.PatientId == patientId).Select(v => v.Id).FirstOrDefault();
+            return visitId != 0 ? visitId : db.Visits.AsNoTracking().Select(v => v.Id).First();
         }
 
         public void Dispose()
         {
-            Environment.SetEnvironmentVariable("HOME", _oldHome);
-
-            // Best-effort cleanup
-            try
-            {
-                Directory.Delete(_tempHome, recursive: true);
-            }
-            catch
-            {
-                // ignore
-            }
+            Environment.SetEnvironmentVariable("XDG_DATA_HOME", _oldXdgDataHome);
+            try { Directory.Delete(_tempFolder, recursive: true); } catch { }
         }
     }
 }

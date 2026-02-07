@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibreMed", "LibreMed\LibreMed.csproj", "{E6236F7A-89BB-4468-9827-C4EACF5DF01F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibreMed.Tests", "LibreMed.Tests\LibreMed.Tests.csproj", "{74CA2E9F-92CF-4D1F-98CA-8AF5DB541593}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{E6236F7A-89BB-4468-9827-C4EACF5DF01F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E6236F7A-89BB-4468-9827-C4EACF5DF01F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E6236F7A-89BB-4468-9827-C4EACF5DF01F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74CA2E9F-92CF-4D1F-98CA-8AF5DB541593}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74CA2E9F-92CF-4D1F-98CA-8AF5DB541593}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74CA2E9F-92CF-4D1F-98CA-8AF5DB541593}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74CA2E9F-92CF-4D1F-98CA-8AF5DB541593}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
