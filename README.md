@@ -11,3 +11,7 @@ The open-source program for managing medical patients.
 ```
 git clone https://github.com/lmihailovic/LibreMed && cd LibreMed/LibreMed && dotnet run
 ```
+
+### From binary
+
+Go to releases tab and download the `.exe` file and run it.
