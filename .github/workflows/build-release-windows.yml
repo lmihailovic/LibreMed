@@ -2,7 +2,7 @@ name: Build & Publish Windows .exe Zip
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
     tags: [ "v*" ]
   pull_request:
 
