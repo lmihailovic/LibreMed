@@ -1,0 +1,62 @@
+name: Build & Make Windows Release
+
+on:
+  push:
+    branches: [ "master" ]
+    tags: [ "v*" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+jobs:
+  build_and_test:
+    name: Build + Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+      - run: dotnet restore
+      - run: dotnet build -c Release --no-restore
+      - run: dotnet test -c Release --no-build
+
+  publish_windows:
+    name: Publish Windows (.exe Zip)
+    runs-on: windows-latest
+    needs: build_and_test
+    if: |
+      needs.build_and_test.result == 'success' &&
+      (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Publish .exe (win-x64, self-contained)
+        shell: pwsh
+        run: |
+          dotnet publish ./LibreMed/LibreMed.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            /p:PublishSingleFile=false `
+            /p:IncludeNativeLibrariesForSelfExtract=true `
+            -o artifacts/win-x64
+
+      - name: Zip published folder
+        shell: pwsh
+        run: Compress-Archive -Path "artifacts/win-x64/*" -DestinationPath "artifacts/LibreMed-win-x64.zip" -Force
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LibreMed-win-x64
+          path: artifacts/LibreMed-win-x64.zip
+
+      - name: Create GitHub Release + upload .zip
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/LibreMed-win-x64.zip
