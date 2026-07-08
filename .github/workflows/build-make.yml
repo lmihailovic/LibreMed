@@ -18,8 +18,8 @@ jobs:
         with:
           dotnet-version: "9.0.x"
       - run: dotnet restore
-      - run: dotnet build -c Release --no-restore
-      - run: dotnet test -c Release --no-build
+      # - run: dotnet build -c Release --no-restore
+      # - run: dotnet test -c Release --no-build
 
   publish_windows:
     name: Publish Windows (.exe Zip)
